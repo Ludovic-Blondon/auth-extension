@@ -14,6 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -60,21 +61,60 @@ export class AuthenticationService {
       throw new UnauthorizedException('Invalid password');
     }
 
-    const accessToken = await this.jwtService.signAsync(
+    return await this.generateTokens(user);
+  }
+
+  async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+    const { refreshToken } = refreshTokenDto;
+
+    try {
+      const { sub } = await this.jwtService.verifyAsync<ActiveUserData>(
+        refreshToken,
+        {
+          secret: this.jwtConfiguration.secret,
+        },
+      );
+
+      const user = await this.userRepository.findOneOrFail({
+        where: { id: sub },
+      });
+
+      return await this.generateTokens(user);
+    } catch (error) {
+      throw new UnauthorizedException(error);
+    }
+  }
+
+  async generateTokens(user: User) {
+    const [accessToken, newRefreshToken] = await Promise.all([
+      this.signToken<Partial<ActiveUserData>>(
+        user.id,
+        this.jwtConfiguration.accessTokenTtl,
+        {
+          email: user.email,
+        },
+      ),
+      this.signToken(user.id, this.jwtConfiguration.refreshTokenTtl),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  private async signToken<T>(userId: number, expiresIn: number, payload?: T) {
+    return await this.jwtService.signAsync(
       {
-        sub: user.id,
-        email: user.email,
+        sub: userId,
+        ...payload,
       } as ActiveUserData,
       {
         secret: this.jwtConfiguration.secret,
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
-        expiresIn: `${this.jwtConfiguration.accessTokenTtl}s`,
+        expiresIn,
       },
     );
-
-    return {
-      accessToken,
-    };
   }
 }
