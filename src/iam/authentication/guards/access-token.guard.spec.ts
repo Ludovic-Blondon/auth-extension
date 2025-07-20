@@ -6,6 +6,7 @@ describe('AccessTokenGuard', () => {
     const mockJwtService = {} as JwtService;
     const mockJwtConfig = {
       secret: 'test-secret',
+      refreshSecret: 'test-refresh-secret',
       audience: 'test-audience',
       issuer: 'test-issuer',
       accessTokenTtl: 3600,

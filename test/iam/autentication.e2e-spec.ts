@@ -6,6 +6,7 @@ import { IamModule } from '../../src/iam/iam.module';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
+import * as jwt from 'jsonwebtoken';
 
 interface AuthResponse {
   accessToken: string;
@@ -135,11 +136,134 @@ describe('Authentication', () => {
         refreshToken = authResponse.refreshToken;
       });
     });
+
+    describe('when the user is not authenticated', () => {
+      it('should not sign in a user', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/sign-in')
+          .send({ ...testUser, password: 'wrong-password' });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({
+          error: 'Unauthorized',
+          message: 'Invalid password',
+          statusCode: 401,
+        });
+      });
+
+      it('should not sign in a user', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/sign-in')
+          .send({ ...testUser, email: 'wrong-email@test.com' });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({
+          error: 'Unauthorized',
+          message: 'User not found',
+          statusCode: 401,
+        });
+      });
+
+      it('when the email is not provided', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/sign-in')
+          .send({ ...testUser, email: '' });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          message: ['email must be an email'],
+          error: 'Bad Request',
+          statusCode: 400,
+        });
+      });
+
+      it('when the email is not an email', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/sign-in')
+          .send({ ...testUser, email: 'not-an-email' });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          message: ['email must be an email'],
+          error: 'Bad Request',
+          statusCode: 400,
+        });
+      });
+
+      it('when the password is not provided', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/sign-in')
+          .send({ ...testUser, password: '' });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          message: ['password must be longer than or equal to 8 characters'],
+          error: 'Bad Request',
+          statusCode: 400,
+        });
+      });
+    });
   });
 
-  it.todo('check call sign-in with wrong body');
-  it.todo('check call sign-up with wrong body');
-  it.todo('check call refresh-tokens with wrong body');
+  describe('Refresh Tokens', () => {
+    let insideRefreshToken: string;
+
+    beforeAll(async () => {
+      const response = await request(app.getHttpServer())
+        .post('/authentication/sign-in')
+        .send(testUser);
+
+      const authResponse = response.body as AuthResponse;
+      insideRefreshToken = authResponse.refreshToken;
+    });
+
+    describe('when the refresh token is valid', () => {
+      it('should refresh the tokens', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/refresh-tokens')
+          .send({ refreshToken: insideRefreshToken });
+
+        expect(response.status).toBe(200);
+        const authResponse = response.body as AuthResponse;
+        expect(authResponse.accessToken).toBeDefined();
+        expect(authResponse.refreshToken).toBeDefined();
+      });
+    });
+
+    describe('when the refresh token is invalid', () => {
+      it('When is not a JWT', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/authentication/refresh-tokens')
+          .send({ refreshToken: 'invalid-refresh-token' });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          message: ['refreshToken must be a jwt string'],
+          error: 'Bad Request',
+          statusCode: 400,
+        });
+      });
+
+      it('When is wrong JWT', async () => {
+        const fakeRefreshToken = jwt.sign(
+          {
+            sub: '123',
+            email: 'test@test.com',
+          },
+          'wrong-secret',
+        );
+        const response = await request(app.getHttpServer())
+          .post('/authentication/refresh-tokens')
+          .send({ refreshToken: fakeRefreshToken });
+
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({
+          message: 'Unauthorized',
+          statusCode: 401,
+        });
+      });
+    });
+  });
 
   describe('Rotate Refresh Token', () => {
     it('should rotate the refresh token', async () => {
@@ -201,7 +325,6 @@ describe('Authentication', () => {
         .post('/authentication/refresh-tokens')
         .send({ refreshToken });
 
-      console.log('refresh tokens', response.body);
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         message: 'Access denied',
