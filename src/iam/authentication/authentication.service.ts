@@ -1,6 +1,5 @@
 import {
   ConflictException,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,16 +9,13 @@ import { Repository } from 'typeorm';
 import { SignUpDto } from './dto/sign-up.dto';
 import { HashingService } from '../hashing/hashing.service';
 import { SignInDto } from './dto/sign-in.dto';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigType } from '@nestjs/config';
-import jwtConfig from '../config/jwt.config';
-import { ActiveUserData } from '../interfaces/active-user-data.interface';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import {
   InvalidatedRefreshTokenError,
   RefreshTokenIdsStorage,
 } from './refresh-token-ids.storage';
 import { randomUUID } from 'crypto';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -27,9 +23,7 @@ export class AuthenticationService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly hashingService: HashingService,
-    private readonly jwtService: JwtService,
-    @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly tokenService: TokenService,
     private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
   ) {}
 
@@ -74,11 +68,8 @@ export class AuthenticationService {
     const { refreshToken } = refreshTokenDto;
 
     try {
-      const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
-        Pick<ActiveUserData, 'sub'> & { refreshTokenId: string }
-      >(refreshToken, {
-        secret: this.jwtConfiguration.refreshSecret,
-      });
+      const { sub, refreshTokenId } =
+        await this.tokenService.verifyRefreshToken(refreshToken);
 
       const user = await this.userRepository.findOneOrFail({
         where: { id: sub },
@@ -107,22 +98,10 @@ export class AuthenticationService {
   async generateTokens(user: User) {
     const refreshTokenId = randomUUID();
     const [accessToken, refreshToken] = await Promise.all([
-      this.signToken<Partial<ActiveUserData>>(
-        user.id,
-        this.jwtConfiguration.accessTokenTtl,
-        this.jwtConfiguration.secret,
-        {
-          email: user.email,
-        },
-      ),
-      this.signToken(
-        user.id,
-        this.jwtConfiguration.refreshTokenTtl,
-        this.jwtConfiguration.refreshSecret,
-        {
-          refreshTokenId,
-        },
-      ),
+      this.tokenService.generateAccessToken(user.id, {
+        email: user.email,
+      }),
+      this.tokenService.generateRefreshToken(user.id, refreshTokenId),
     ]);
 
     await this.refreshTokenIdsStorage.insert(user.id, refreshTokenId);
@@ -131,25 +110,5 @@ export class AuthenticationService {
       accessToken,
       refreshToken,
     };
-  }
-
-  private async signToken<T>(
-    userId: number,
-    expiresIn: number,
-    secret: string | undefined,
-    payload?: T,
-  ) {
-    return await this.jwtService.signAsync(
-      {
-        sub: userId,
-        ...payload,
-      } as ActiveUserData,
-      {
-        secret,
-        audience: this.jwtConfiguration.audience,
-        issuer: this.jwtConfiguration.issuer,
-        expiresIn,
-      },
-    );
   }
 }
