@@ -15,7 +15,7 @@ import {
   RefreshTokenIdsStorage,
 } from './refresh-token-ids.storage';
 import { randomUUID } from 'crypto';
-import { TokenService } from './token.service';
+import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class AuthenticationService {

@@ -5,7 +5,7 @@ import { User } from '../../users/entities/user.entity';
 import { HashingService } from '../hashing/hashing.service';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenIdsStorage } from './refresh-token-ids.storage';
-import { TokenService } from './token.service';
+import { TokenService } from '../token/token.service';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;

@@ -5,23 +5,15 @@ import { AuthenticationController } from './authentication/authentication.contro
 import { AuthenticationService } from './authentication/authentication.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
-import jwtConfig from './config/jwt.config';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './authentication/guards/authentication.guard';
 import { AccessTokenGuard } from './authentication/guards/access-token.guard';
 import { RefreshTokenIdsStorage } from './authentication/refresh-token-ids.storage';
 import { RedisModule } from '../redis/redis.module';
-import { TokenService } from './authentication/token.service';
+import { TokenModule } from './token/token.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
-    ConfigModule.forFeature(jwtConfig),
-    RedisModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User]), RedisModule, TokenModule],
   providers: [
     { provide: HashingService, useClass: BcryptService },
     AuthenticationService,
@@ -31,7 +23,6 @@ import { TokenService } from './authentication/token.service';
     },
     AccessTokenGuard,
     RefreshTokenIdsStorage,
-    TokenService,
   ],
   controllers: [AuthenticationController],
 })
