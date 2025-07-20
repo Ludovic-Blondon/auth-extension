@@ -84,3 +84,17 @@ L’**autorisation**, quant à elle, est le processus qui consiste à **détermi
 | -------------------- | -------------------------------------------- | ------------- |
 | **Authentification** | Vérifier **qui est l’utilisateur**           | Avant l'accès |
 | **Autorisation**     | Vérifier **ce que l’utilisateur peut faire** | Après l'accès |
+
+## 🔐 JWT Authentication System
+
+Ce projet implémente un système d'authentification basé sur JWT avec gestion sécurisée du renouvellement de tokens via le mécanisme de **Refresh Token Rotation**.
+
+### 🚀 **Fonctionnalités principales :**
+
+- 🔑 **Access Token** : Authentification des requêtes (1h)
+- 🔄 **Refresh Token** : Renouvellement automatique (24h)
+- 🛡️ **Token Rotation** : Sécurité renforcée
+
+### 📖 **Documentation complète :**
+
+Pour plus de détails sur l'implémentation et l'utilisation, consultez la **[documentation complète](./src/iam/readme.md)** 📚
