@@ -47,7 +47,13 @@ describe('RedisService', () => {
     expect(result).toBe(1);
   });
 
-  it('should quit the redis client', async () => {
-    await service.onApplicationShutdown();
+  afterEach(async () => {
+    if (service) {
+      await service.onApplicationShutdown();
+    }
+  });
+
+  afterAll(() => {
+    jest.clearAllMocks();
   });
 });
