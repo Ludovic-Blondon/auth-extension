@@ -77,7 +77,7 @@ export class AuthenticationService {
       const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
         Pick<ActiveUserData, 'sub'> & { refreshTokenId: string }
       >(refreshToken, {
-        secret: this.jwtConfiguration.secret,
+        secret: this.jwtConfiguration.refreshSecret,
       });
 
       const user = await this.userRepository.findOneOrFail({
@@ -106,35 +106,46 @@ export class AuthenticationService {
 
   async generateTokens(user: User) {
     const refreshTokenId = randomUUID();
-    const [accessToken, newRefreshToken] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.signToken<Partial<ActiveUserData>>(
         user.id,
         this.jwtConfiguration.accessTokenTtl,
+        this.jwtConfiguration.secret,
         {
           email: user.email,
         },
       ),
-      this.signToken(user.id, this.jwtConfiguration.refreshTokenTtl, {
-        refreshTokenId,
-      }),
+      this.signToken(
+        user.id,
+        this.jwtConfiguration.refreshTokenTtl,
+        this.jwtConfiguration.refreshSecret,
+        {
+          refreshTokenId,
+        },
+      ),
     ]);
 
     await this.refreshTokenIdsStorage.insert(user.id, refreshTokenId);
 
     return {
       accessToken,
-      refreshToken: newRefreshToken,
+      refreshToken,
     };
   }
 
-  private async signToken<T>(userId: number, expiresIn: number, payload?: T) {
+  private async signToken<T>(
+    userId: number,
+    expiresIn: number,
+    secret: string | undefined,
+    payload?: T,
+  ) {
     return await this.jwtService.signAsync(
       {
         sub: userId,
         ...payload,
       } as ActiveUserData,
       {
-        secret: this.jwtConfiguration.secret,
+        secret,
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
         expiresIn,
