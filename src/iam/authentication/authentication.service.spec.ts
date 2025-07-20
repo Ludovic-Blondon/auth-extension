@@ -4,9 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../users/entities/user.entity';
 import { HashingService } from '../hashing/hashing.service';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigType } from '@nestjs/config';
-import jwtConfig from '../config/jwt.config';
 import { RefreshTokenIdsStorage } from './refresh-token-ids.storage';
+import { TokenService } from '../token/token.service';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
@@ -38,14 +37,13 @@ describe('AuthenticationService', () => {
           },
         },
         {
-          provide: jwtConfig.KEY,
+          provide: TokenService,
           useValue: {
-            secret: 'test-secret',
-            audience: 'test-audience',
-            issuer: 'test-issuer',
-            accessTokenTtl: 3600,
-            refreshTokenTtl: 86400,
-          } as ConfigType<typeof jwtConfig>,
+            generateAccessToken: jest.fn(),
+            generateRefreshToken: jest.fn(),
+            verifyAccessToken: jest.fn(),
+            verifyRefreshToken: jest.fn(),
+          },
         },
         {
           provide: RefreshTokenIdsStorage,

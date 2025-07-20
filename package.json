@@ -20,8 +20,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:up": "docker compose up -d db redis",
+    "docker:down": "docker compose down",
+    "docker:test:up": "docker compose up -d test-db",
+    "docker:test:down": "docker compose down test-db",
+    "docker:test:clean": "docker compose stop test-db && docker compose rm -f test-db",
+    "pretest:e2e": "npm run docker:test:up",
+    "posttest:e2e": "npm run docker:test:clean"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
