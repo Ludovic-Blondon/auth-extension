@@ -15,4 +15,24 @@ describe('BcryptService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('should hash a password', async () => {
+    const password = 'password';
+    const hashedPassword = await service.hash(password);
+    expect(hashedPassword).toBeDefined();
+  });
+
+  it('should verify a password', async () => {
+    const password = 'password';
+    const hashedPassword = await service.hash(password);
+    const isVerified = await service.compare(password, hashedPassword);
+    expect(isVerified).toBe(true);
+  });
+
+  it('should not verify a password', async () => {
+    const password = 'password';
+    const hashedPassword = await service.hash(password);
+    const isVerified = await service.compare('wrong-password', hashedPassword);
+    expect(isVerified).toBe(false);
+  });
 });
