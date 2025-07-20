@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthenticationService } from './authentication.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -71,14 +74,11 @@ describe('AuthenticationService', () => {
         email: 'test@test.com',
         password: 'password',
       });
-      // The signUp method doesn't return anything, so we just verify it completes without error
     });
 
     it('signup with conflict', async () => {
-      // Mock the repository to return an existing user to trigger ConflictException
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const userRepository = module.get(getRepositoryToken(User));
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       const findOneMock = userRepository.findOne as jest.Mock;
       findOneMock.mockResolvedValue({
         id: 1,
@@ -96,10 +96,8 @@ describe('AuthenticationService', () => {
 
   describe('signIn', () => {
     it('should sign in a user', async () => {
-      // Mock the repository to return a user
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const userRepository = module.get(getRepositoryToken(User));
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       const findOneMock = userRepository.findOne as jest.Mock;
       findOneMock.mockResolvedValue({
         id: 1,
@@ -107,24 +105,25 @@ describe('AuthenticationService', () => {
         password: 'hashed-password',
       });
 
-      // Mock the hashing service to return true for password comparison
       const hashingService = module.get(HashingService);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const compareMock = hashingService.compare as jest.Mock;
       compareMock.mockResolvedValue(true);
 
-      // Mock the token service to return tokens
       const tokenService = module.get(TokenService);
+
       const generateAccessTokenMock =
         tokenService.generateAccessToken as jest.Mock;
+
       const generateRefreshTokenMock =
         tokenService.generateRefreshToken as jest.Mock;
+
       generateAccessTokenMock.mockResolvedValue('access-token');
+
       generateRefreshTokenMock.mockResolvedValue('refresh-token');
 
-      // Mock the refresh token storage
       const refreshTokenIdsStorage = module.get(RefreshTokenIdsStorage);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const insertMock = refreshTokenIdsStorage.insert as jest.Mock;
       insertMock.mockResolvedValue(undefined);
 
@@ -139,9 +138,8 @@ describe('AuthenticationService', () => {
     });
 
     it('should throw an error if the user does not exist', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const userRepository = module.get(getRepositoryToken(User));
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       const findOneMock = userRepository.findOne as jest.Mock;
       findOneMock.mockResolvedValue(null);
 
