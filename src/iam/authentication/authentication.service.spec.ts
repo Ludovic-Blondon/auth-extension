@@ -74,6 +74,7 @@ describe('AuthenticationService', () => {
       await service.signUp({
         email: 'test@test.com',
         password: 'password',
+        role: Role.REGULAR,
       });
     });
 
@@ -90,6 +91,7 @@ describe('AuthenticationService', () => {
         service.signUp({
           email: 'test@test.com',
           password: 'password',
+          role: Role.REGULAR,
         }),
       ).rejects.toThrow(ConflictException);
     });
