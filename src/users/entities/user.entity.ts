@@ -22,6 +22,6 @@ export class User {
   // NOTE: Having the "permissions" column in combination with the "role"
   // likely does not make sense. We use both in this course just to showcase
   // two different approaches to authorization.
-  @Column({ enum: Permission, default: [], type: 'json' })
+  @Column({ enum: Permission, default: [], type: 'jsonb' })
   permissions: PermissionType[];
 }
