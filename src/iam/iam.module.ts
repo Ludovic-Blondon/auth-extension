@@ -12,6 +12,7 @@ import { RefreshTokenIdsStorage } from './authentication/refresh-token-ids.stora
 import { RedisModule } from '../redis/redis.module';
 import { TokenModule } from './token/token.module';
 import { RolesGuard } from './authorization/guards/roles.guard';
+import { PermissionsGuard } from './authorization/guards/permissions.guard';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), RedisModule, TokenModule],
@@ -25,6 +26,10 @@ import { RolesGuard } from './authorization/guards/roles.guard';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
     AccessTokenGuard,
     RefreshTokenIdsStorage,

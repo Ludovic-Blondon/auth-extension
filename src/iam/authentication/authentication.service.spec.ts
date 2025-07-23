@@ -236,6 +236,7 @@ describe('AuthenticationService', () => {
         email: 'test@test.com',
         password: 'hashed-password',
         role: Role.REGULAR,
+        permissions: [],
       });
       expect(result).toEqual({
         accessToken: 'access-token',
