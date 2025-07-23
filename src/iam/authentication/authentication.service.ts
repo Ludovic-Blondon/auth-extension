@@ -40,6 +40,7 @@ export class AuthenticationService {
     user.email = signUpDto.email;
     user.password = await this.hashingService.hash(signUpDto.password);
     user.role = signUpDto.role;
+    user.permissions = signUpDto.permissions;
 
     await this.userRepository.save(user);
   }
