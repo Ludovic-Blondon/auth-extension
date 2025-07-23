@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenIdsStorage } from './refresh-token-ids.storage';
 import { TokenService } from '../token/token.service';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Role } from '../../users/enums/role.enum';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
@@ -73,6 +74,7 @@ describe('AuthenticationService', () => {
       await service.signUp({
         email: 'test@test.com',
         password: 'password',
+        role: Role.REGULAR,
       });
     });
 
@@ -89,6 +91,7 @@ describe('AuthenticationService', () => {
         service.signUp({
           email: 'test@test.com',
           password: 'password',
+          role: Role.REGULAR,
         }),
       ).rejects.toThrow(ConflictException);
     });
@@ -232,6 +235,7 @@ describe('AuthenticationService', () => {
         id: 1,
         email: 'test@test.com',
         password: 'hashed-password',
+        role: Role.REGULAR,
       });
       expect(result).toEqual({
         accessToken: 'access-token',

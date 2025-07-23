@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoffeesController } from './coffees.controller';
 import { CoffeesService } from './coffees.service';
+import { Role } from '../users/enums/role.enum';
 
 describe('CoffeesController', () => {
   let controller: CoffeesController;
@@ -23,6 +24,7 @@ describe('CoffeesController', () => {
       const result = controller.findAll({
         sub: 1,
         email: 'test@test.com',
+        role: Role.REGULAR,
       });
       expect(result).toEqual('This action returns all coffees');
     });

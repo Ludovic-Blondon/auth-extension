@@ -39,6 +39,7 @@ export class AuthenticationService {
     const user = new User();
     user.email = signUpDto.email;
     user.password = await this.hashingService.hash(signUpDto.password);
+    user.role = signUpDto.role;
 
     await this.userRepository.save(user);
   }
@@ -100,6 +101,7 @@ export class AuthenticationService {
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.generateAccessToken(user.id, {
         email: user.email,
+        role: user.role,
       }),
       this.tokenService.generateRefreshToken(user.id, refreshTokenId),
     ]);
