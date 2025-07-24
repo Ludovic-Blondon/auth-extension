@@ -14,8 +14,10 @@ import { ActiveUser } from '../iam/decorators/active-user.decorator';
 import { ActiveUserData } from '../iam/interfaces/active-user-data.interface';
 import { Roles } from '../iam/authorization/decorators/role.decorator';
 import { Role } from '../users/enums/role.enum';
+// import { Policies } from 'src/iam/authorization/decorators/policies.decorator';
 // import { CoffeesPermission } from './coffees.permission';
 // import { Permissions } from 'src/iam/authorization/decorators/permissions.decorator';
+// import { FrameworkContributorPolicy } from 'src/iam/authorization/policies/framework-contributor.policy';
 
 @Controller('coffees')
 export class CoffeesController {
@@ -23,6 +25,7 @@ export class CoffeesController {
 
   // @Permissions(CoffeesPermission.CREATE)
   @Roles(Role.ADMIN)
+  // @Policies(new FrameworkContributorPolicy())
   @Post()
   create(@Body() createCoffeeDto: CreateCoffeeDto) {
     return this.coffeesService.create(createCoffeeDto);

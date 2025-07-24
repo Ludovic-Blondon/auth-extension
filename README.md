@@ -101,10 +101,11 @@ Pour plus de détails sur l'implémentation et l'utilisation, consultez la **[do
 
 ## 🔐 Authorization
 
-Ce projet utilise deux approches complémentaires pour la gestion des autorisations :
+Ce projet utilise trois approches complémentaires pour la gestion des autorisations :
 
 - **RBAC (Role-Based Access Control)** : basé sur un rôle global (`admin`, `regular`, etc.)
-- **Claims-Based Authorization** : basé sur des permissions plus granulaires (`coffees:create`, `coffees:read`, etc.)
+- **Claims-Based Authorization** : basé sur des permissions granulaires (`coffees:create`, `coffees:read`, etc.)
+- **Policy-Based Authorization** : basé sur des règles personnalisées et dynamiques
 
 ### 📖 **Documentation complète :**
 
