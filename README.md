@@ -98,3 +98,15 @@ Ce projet implémente un système d'authentification basé sur JWT avec gestion 
 ### 📖 **Documentation complète :**
 
 Pour plus de détails sur l'implémentation et l'utilisation, consultez la **[documentation complète](./src/iam/readme.md)** 📚
+
+## 🔐 Authorization
+
+Ce projet utilise trois approches complémentaires pour la gestion des autorisations :
+
+- **RBAC (Role-Based Access Control)** : basé sur un rôle global (`admin`, `regular`, etc.)
+- **Claims-Based Authorization** : basé sur des permissions granulaires (`coffees:create`, `coffees:read`, etc.)
+- **Policy-Based Authorization** : basé sur des règles personnalisées et dynamiques
+
+### 📖 **Documentation complète :**
+
+➡️ Pour plus de détails, voir la [documentation complète sur l'authorization](./src/iam/authorization/readme.md).

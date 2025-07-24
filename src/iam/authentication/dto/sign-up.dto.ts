@@ -1,5 +1,15 @@
-import { IsEmail, IsEnum, IsOptional, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  MinLength,
+} from 'class-validator';
 import { Role } from '../../../users/enums/role.enum';
+import {
+  Permission,
+  PermissionType,
+} from '../../authorization/permission.type';
 
 export class SignUpDto {
   @IsEmail()
@@ -11,4 +21,9 @@ export class SignUpDto {
   @IsEnum(Role)
   @IsOptional()
   role: Role;
+
+  @IsArray()
+  @IsEnum(Permission, { each: true })
+  @IsOptional()
+  permissions: PermissionType[];
 }

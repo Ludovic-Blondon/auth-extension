@@ -25,6 +25,7 @@ describe('CoffeesController', () => {
         sub: 1,
         email: 'test@test.com',
         role: Role.REGULAR,
+        permissions: [],
       });
       expect(result).toEqual('This action returns all coffees');
     });

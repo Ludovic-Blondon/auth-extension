@@ -40,6 +40,7 @@ export class AuthenticationService {
     user.email = signUpDto.email;
     user.password = await this.hashingService.hash(signUpDto.password);
     user.role = signUpDto.role;
+    user.permissions = signUpDto.permissions;
 
     await this.userRepository.save(user);
   }
@@ -102,6 +103,7 @@ export class AuthenticationService {
       this.tokenService.generateAccessToken(user.id, {
         email: user.email,
         role: user.role,
+        permissions: user.permissions,
       }),
       this.tokenService.generateRefreshToken(user.id, refreshTokenId),
     ]);
