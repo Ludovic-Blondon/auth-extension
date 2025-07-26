@@ -16,9 +16,18 @@ import { PermissionsGuard } from './authorization/guards/permissions.guard';
 import { PolicyHandlersStorage } from './authorization/policies/policy-handlers.storage';
 import { FrameworkContributorPolicyHandler } from './authorization/policies/framework-contributor.policy';
 import { PoliciesGuard } from './authorization/guards/policies.guard';
+import { GoogleAuthenticationService } from './authentication/social/google-authentication.service';
+import { GoogleAuthenticationController } from './authentication/social/google-authentication.controller';
+import { ConfigModule } from '@nestjs/config';
+import googleConfig from './config/google.config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RedisModule, TokenModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    RedisModule,
+    TokenModule,
+    ConfigModule.forFeature(googleConfig),
+  ],
   providers: [
     { provide: HashingService, useClass: BcryptService },
     AuthenticationService,
@@ -42,7 +51,8 @@ import { PoliciesGuard } from './authorization/guards/policies.guard';
     RefreshTokenIdsStorage,
     PolicyHandlersStorage,
     FrameworkContributorPolicyHandler,
+    GoogleAuthenticationService,
   ],
-  controllers: [AuthenticationController],
+  controllers: [AuthenticationController, GoogleAuthenticationController],
 })
 export class IamModule {}

@@ -13,7 +13,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({ type: 'enum', enum: Role, default: Role.REGULAR })
@@ -24,4 +24,7 @@ export class User {
   // two different approaches to authorization.
   @Column({ enum: Permission, default: [], type: 'jsonb' })
   permissions: PermissionType[];
+
+  @Column({ nullable: true })
+  googleId: string;
 }
