@@ -16,9 +16,17 @@ import { PermissionsGuard } from './authorization/guards/permissions.guard';
 import { PolicyHandlersStorage } from './authorization/policies/policy-handlers.storage';
 import { FrameworkContributorPolicyHandler } from './authorization/policies/framework-contributor.policy';
 import { PoliciesGuard } from './authorization/guards/policies.guard';
+import { OtpAuthenticationService } from './authentication/otp-authentication.service';
+import { ConfigModule } from '@nestjs/config';
+import tfaConfig from './config/tfa.config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RedisModule, TokenModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    RedisModule,
+    TokenModule,
+    ConfigModule.forFeature(tfaConfig),
+  ],
   providers: [
     { provide: HashingService, useClass: BcryptService },
     AuthenticationService,
@@ -42,6 +50,7 @@ import { PoliciesGuard } from './authorization/guards/policies.guard';
     RefreshTokenIdsStorage,
     PolicyHandlersStorage,
     FrameworkContributorPolicyHandler,
+    OtpAuthenticationService,
   ],
   controllers: [AuthenticationController],
 })

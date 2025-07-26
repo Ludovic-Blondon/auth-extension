@@ -24,4 +24,10 @@ export class User {
   // two different approaches to authorization.
   @Column({ enum: Permission, default: [], type: 'jsonb' })
   permissions: PermissionType[];
+
+  @Column({ default: false })
+  isTfaEnabled: boolean;
+
+  @Column({ nullable: true })
+  tfaSecret: string;
 }

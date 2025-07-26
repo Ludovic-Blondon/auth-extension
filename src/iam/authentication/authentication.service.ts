@@ -16,6 +16,7 @@ import {
 } from './refresh-token-ids.storage';
 import { randomUUID } from 'crypto';
 import { TokenService } from '../token/token.service';
+import { OtpAuthenticationService } from './otp-authentication.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -25,6 +26,7 @@ export class AuthenticationService {
     private readonly hashingService: HashingService,
     private readonly tokenService: TokenService,
     private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
+    private readonly otpAuthService: OtpAuthenticationService,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -61,6 +63,20 @@ export class AuthenticationService {
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
+    }
+
+    if (user.isTfaEnabled) {
+      if (!signInDto.tfaCode) {
+        throw new UnauthorizedException('2FA code is required');
+      }
+
+      const isValid = this.otpAuthService.verifyCode(
+        signInDto.tfaCode,
+        user.tfaSecret,
+      );
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid 2FA code');
+      }
     }
 
     return await this.generateTokens(user);
